@@ -166,7 +166,8 @@ mycat(paste0("labels: ",paste(popnames,collapse=",")))
 
 if(indlabelf!=""){
     mycat("Reading individual labels...")
-    ilabels=read.csv("individual_labels.csv",row.names=1,sep=";")[,2,drop=FALSE]
+    ilabels=read.csv(indlabelf,row.names=1,sep=",")
+    ilabels=ilabels[,dim(ilabels)[2],drop=FALSE]
     ulabels=unique(ilabels[,1])
     if(sort){
         mycat("Aligning using individual labels...")
