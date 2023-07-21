@@ -2,6 +2,8 @@
 ## I run with:
 ## Rscript  ~/code/popcluster-scripts/visualiseAdmixture.R MH7_comparison -n labels.txt -l individual_labels_asclusters.csv -c MH,SNPs+AIMs,MH\ top1000,SNPS\ top1000 MH_K_7_R_1_admixture.csv SNPs+AIMs_K7_fulldata_K_7_R_1_admixture.csv MH_top1000_pop7_K_7_R_1_admixture.csv SNPs_top1000_pop7_K_7_R_1_admixture.csv
 ## Rscript  ~/code/popcluster-scripts/visualiseAdmixture.R MH7_comparison -n labels.txt -c MH,SNPs+AIMs,MH\ top1000,SNPS\ top1000 MH_K_7_R_1_admixture.csv SNPs+AIMs_K7_fulldata_K_7_R_1_admixture.csv MH_top1000_pop7_K_7_R_1_admixture.csv SNPs_top1000_pop7_K_7_R_1_admixture.csv
+## Rscript ~/code/popcluster-scripts/visualiseAdmixture.R MH7_comparison -n labelsK4_MH.txt -c Full,Top500(all),Top500(AMR) MH_fullset_10run_K_4_R_9_admixture.csv MH_top500_allpop_10run_K_4_R_1_admixture.csv MH_top500_pop7_10run_K_4_R_4_admixture.csv
+args=strsplit("Rscript ~/code/popcluster-scripts/visualiseAdmixture.R MH7_comparison -n labelsK4_MH.txt -l individual_labels_asclusters2.csv -S -c Full,Top500(all),Top500(AMR) MH_fullset_10run_K_4_R_9_admixture.csv MH_top500_allpop_10run_K_4_R_1_admixture.csv MH_top500_pop7_10run_K_4_R_4_admixture.csv"," ")[[1]][-(1:2)]
 
 ## Editable quantities
 marbarplot=c(0,4,6,1)
@@ -30,6 +32,7 @@ labelf=""
 indlabelf=""
 outputf="tmp"
 sort=FALSE
+usescore=TRUE
 captions=""
 mycat("Running...")
 if(length(args)>=2) {
@@ -46,6 +49,9 @@ if(length(args)>=2) {
         }else if((args[i])=="-s"){
             sort=FALSE
             args=args[-i]
+        }else if((args[i])=="-S"){
+            usescore=FALSE
+            args=args[-i]
         }else if((args[i])=="-c"){
             captions=strsplit(args[i+1],",")[[1]]
             args=args[-(i:(i+1))]
@@ -56,12 +62,13 @@ if(length(args)>=2) {
     files=args[-1]
 }else{
     mycat("Showing help:",stderr())
-    mycat("Usage: Rscript visualiseAdmixture.R output_file_root (-n labels.csv) (-l indlabels.csv) (-s) (-c list of captions) (list of input files)",stderr())
+    mycat("Usage: Rscript visualiseAdmixture.R output_file_root (-n labels.csv) (-l indlabels.csv) (-s) (-S) (-c list of captions) (list of input files)",stderr())
     mycat("Purpose: visualise admixture file sets.")
     mycat("output_file_root: location for output files (.png used for graphs, reorded population matrices also created)")
     mycat("labels.csv : (optional) a file with population labels as the first column and latent population labels as the rest of the line, comma separated.",stderr())
     mycat("indlabels.csv : (optional) a file with individual labels as the first column and sample population labels as the second, comma separated.",stderr())
     mycat("-s: if providing indlabels, the output wil be sorted into clusters by default. Use this to disable sorting.")
+    mycat("-S: the output by default will give the \"score\" against the first datafile. Use this to disable score reporting on the figure.")
     mycat("list of input files: _admixture.csv files as creted by popcluster2csv.R")
     stop()
 }
@@ -209,13 +216,14 @@ for(i in 1:k){
             col=cols,main="",
             xlab="",axisnames=FALSE,ylab="")
     axis(2,las=2,cex.axis=cexyaxis,line=lineyaxis)
-    mtext(paste0(letters[1:k][i],") ",
-                 captions[i],
-                 ", score=",scores2dp[i]),3,
+    mytext=paste0(letters[1:k][i],") ",
+                  captions[i])
+    if(usescore) mytext=paste0(mytext,", score=",scores2dp[i])
+    mtext(mytext,3,
           adj=0,cex=cextitle,line=linetitle)
     if(sort){
         axis(1,at=mids,labels=rep("",length(mids)))
-        abline(v=changes)
+        abline(v=changes,col="white")
     }
 }
 par(mar=marlegend,cex=cex)
